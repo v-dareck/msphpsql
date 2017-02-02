@@ -1,6 +1,8 @@
 sudo: required
 
-os: linux
+os: 
+# - linux
+ - osx
 dist: trusty
 
 services:
@@ -14,21 +16,50 @@ env:
   - SQLSERVERHOSTNAME=sql
 
 before_install:
-  - docker pull microsoft/mssql-server-linux
+#  - docker pull microsoft/mssql-server-linux
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then 
+      brew update; 
+      brew tap homebrew/dupes; 
+      brew tap homebrew/versions;
+      brew tap homebrew/homebrew-php;
+      brew unlink php55;
+      brew unlink php56; 
+      brew install php70;
+      brew install unixodbc;
+      brew install llvm --with-clang --with-clang-extra-tools ;
+      chmod a+x ./source/packagize.sh;
+    fi
+
  
 install:
-  - docker build --build-arg PHPSQLDIR=$PHPSQLDIR -t msphpsql-dev -f Dockerfile-msphpsql .
-  - docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<YourStrong!Passw0rd>' -p 1433:1433 --name=$SQLSERVERHOSTNAME -d microsoft/mssql-server-linux
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; docker build --build-arg PHPSQLDIR=$PHPSQLDIR -t msphpsql-dev -f Dockerfile-msphpsql . fi;
+ # - docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<YourStrong!Passw0rd>' -p 1433:1433 --name=$SQLSERVERHOSTNAME -d microsoft/mssql-server-linux
 
 script: 
-  - docker run -e TRAVIS_JOB_ID -t -d -w $PHPSQLDIR --link $SQLSERVERHOSTNAME --name=client msphpsql-dev
-  - docker ps -a 
-  - docker exec client php ./source/pdo_sqlsrv/run-tests.php ./test/pdo_sqlsrv/*.phpt
-  - docker exec client php ./source/sqlsrv/run-tests.php ./test/sqlsrv/*.phpt
-  - docker exec client coveralls -e ./source/shared/ --gcov-options '\-lp'
-  - docker stop client
-  - docker ps -a 
-
+   - |
+    if [ "$TRAVIS_OS_NAME" == "$linux" ]; then
+      docker run -e TRAVIS_JOB_ID -t -d -w $PHPSQLDIR --link $SQLSERVERHOSTNAME --name=client msphpsql-dev;
+      docker ps -a;
+      docker exec client php ./source/pdo_sqlsrv/run-tests.php ./test/pdo_sqlsrv/*.phpt;
+      docker exec client php ./source/sqlsrv/run-tests.php ./test/sqlsrv/*.phpt;
+      docker exec client coveralls -e ./source/shared/ --gcov-options '\-lp' ;
+      docker stop client;
+      docker ps -a;
+    else
+      export BUILDDIR=$PWD/source
+      echo $BUILDDIR
+      cd $BUILDDIR
+      /bin/bash packagize.sh
+      cd $BUILDDIR/sqlsrv
+      phpize
+      ./configure CC='clang' CXX='clang++'
+      make
+      cd $BUILDDIR/pdo_sqlsrv
+      phpize
+      ./configure CC='clang' CXX='clang++'
+      make
+    fi
 
 notifications:
   email: false
