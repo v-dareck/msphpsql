@@ -25,7 +25,7 @@
 
 #ifndef _WIN32
 #include <type_traits>
-#include <uchar.h>
+//#include <uchar.h>
 #endif // !_WIN32
 
 
@@ -218,7 +218,8 @@ SQLRETURN number_to_string( Number* number_data, _Out_ void* buffer, SQLLEN buff
             char16_t ch16;
             std::mbstate_t mbs = std::mbstate_t();
 
-            int len = mbrtoc16( &ch16, &mb, str_num_end - str_num_ptr, &mbs );
+            //int len = mbrtoc16( &ch16, &mb, str_num_end - str_num_ptr, &mbs );
+            int len = 1;
             if ( len > 0 || len == -3 )
             {
                 str.push_back( ch16 );
@@ -271,7 +272,9 @@ SQLRETURN string_to_number( Char* string_data, SQLLEN str_len, _Out_ void* buffe
         {
             memset( &mbs, 0, sizeof( mbs ));		//set shift state to the initial state
             memset( c_str, 0, sizeof( c_str ));
-            int len = c16rtomb( c_str, string_data[i++], &mbs );	// treat string_data as a char16_t string
+            //int len = c16rtomb( c_str, string_data[i++], &mbs );	// treat string_data as a char16_t string
+            i++;
+            int len = 1;
             str.append(std::string( c_str, len ));
         }
     }
