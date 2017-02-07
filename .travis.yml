@@ -29,6 +29,7 @@ before_install:
       brew install php70;
       brew install unixodbc;
       brew install llvm --with-clang --with-clang-extra-tools ;
+      brew install docker;
       chmod a+x ./source/packagize.sh;
     fi
 
