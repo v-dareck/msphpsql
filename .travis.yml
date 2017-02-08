@@ -17,7 +17,6 @@ env:
   - SQLSERVERHOSTNAME=sql
 
 before_install:
-  - docker pull microsoft/mssql-server-linux
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then 
       brew update; 
@@ -32,7 +31,7 @@ before_install:
       brew install docker;
       chmod a+x ./source/packagize.sh;
     fi
-
+  - docker pull microsoft/mssql-server-linux
  
 install:
 #  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; docker build --build-arg PHPSQLDIR=$PHPSQLDIR -t msphpsql-dev -f Dockerfile-msphpsql . fi;
