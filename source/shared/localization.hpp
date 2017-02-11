@@ -23,9 +23,9 @@
 #include <time.h>
 #include <assert.h>
 
-//#ifdef __APPLE__
-//#include <locale>
-//#endif
+#ifdef MPLAT_UNIX
+#include <locale>
+#endif
 #include "typedefs_for_linux.h"
 
 #ifdef MPLAT_UNIX
