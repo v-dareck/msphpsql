@@ -23,19 +23,10 @@
 #include <time.h>
 #include <assert.h>
 
-#ifdef MPLAT_UNIX
-#include <locale>
-#endif
 #include "typedefs_for_linux.h"
 
 #ifdef MPLAT_UNIX
-//#ifndef __APPLE__
-//namespace std
-//{
-    // Forward reference
-    //class locale;
-//}
-//#endif
+#include <locale>
 #endif
 
 #define CP_UTF8  65001
