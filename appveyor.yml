@@ -8,6 +8,7 @@ branches:
   except:
     - PHP-7.0-Linux
     - PHP5
+    - coverity_scan
 
 environment:
     # MSSQL credentials from https://www.appveyor.com/docs/services-databases/
